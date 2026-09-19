@@ -26,7 +26,7 @@ bool Resource::getAvailability() const {
     return isAvailable;
 }
 
-std::vector<Resource> loadResourcesFromCSV(const std::string& filename) {
+std::vector<Resource> loadResources(const std::string& filename) {
     std::vector<Resource> resources;
     std::ifstream file(filename);
     std::string line;

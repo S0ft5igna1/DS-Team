@@ -25,6 +25,6 @@ class Resource {
 
 };
 
-std::vector<Resource> loadResourcesFromCSV(const std::string& filename);
+std::vector<Resource> loadResources(const std::string& filename);
 
     #endif
