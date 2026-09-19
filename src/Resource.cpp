@@ -1,5 +1,5 @@
 // Resource.cpp
-#include "Resource.h"
+#include "Resource.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
