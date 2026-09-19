@@ -1,0 +1,7 @@
+// Reservation variable names
+
+    std::string reservationID;
+    std::string studentID;
+    std::string studentName;
+    std::string resourceID;
+    std::string reservationDate;
