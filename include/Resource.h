@@ -3,18 +3,19 @@
 #define RESOURCE_H
 
 #include <string>
+#include <vector>
 
 class Resource {
     private:
-        int id;
+        std::string id;
         std::string name;
         std::string type;
         bool isAvailable;
 
     public:
-        Resource(int resourceId, const std::string& resourceName, const std::string& resourceType, bool availability);
+        Resource(const std::string& resourceId, const std::string& resourceName, const std::string& resourceType, bool availability);
 
-        int getId() const;
+        std::string getId() const;
 
         std::string getName() const;
 
@@ -23,4 +24,7 @@ class Resource {
         bool getAvailability() const;
 
 };
+
+std::vector<Resource> loadResourcesFromCSV(const std::string& filename);
+
     #endif

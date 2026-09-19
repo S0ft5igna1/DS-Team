@@ -1,0 +1,8 @@
+R205,Study Room A,Study Room,1
+R206,Study Room B,Study Room,0
+R301,Quiet Study Room,Study Room,1
+T001,Math Tutoring,Tutoring,1
+T002,Writing Center Session,Tutoring,1
+T003,CS Tutoring,Tutoring,0
+C051,TI-84 Plus,Calculator,1
+E013,3D Printer,Lab Equipment,1
