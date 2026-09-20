@@ -3,8 +3,9 @@
 
 int main() {
     auto resources = loadResources("Data/resources.txt");
-    for (const auto& resource : resources) {
-        std::cout << "ID: " << resource.getId() << ", Name: " << resource.getName() << ", Type: " << resource.getType() << ", Available: " << (resource.getAvailability() ? "Available" : "Not Available") << std::endl;
-    }
+    std::cout << "All Resources:" << std::endl;
+    displayResources(resources);
+    std::cout << "\nAvailable Resources:" << std::endl;
+    displayAvailableResources(resources);
     return 0;
 }
