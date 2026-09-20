@@ -1,6 +1,7 @@
 // copy of main.cpp with the changes made to it for testing purposes of the ReservationManager and CancellationHistory classes
 #include <iostream>
 #include <string>
+#include "Resource.hpp"
 
 #include "../include/Reservation.hpp" // Include the Reservation class
 #include "../include/ReservationManager.hpp" // Include the ReservationManager class
@@ -8,6 +9,16 @@
 
 int main()
 {
+
+
+    auto resources = loadResources("Data/resources.txt");
+    std::cout << "All Resources:" << std::endl;
+    displayResources(resources);
+    std::cout << "\nAvailable Resources:" << std::endl;
+    displayAvailableResources(resources);
+    //return 0;
+
+    
     ReservationManager reservationManager; // Create an instance of ReservationManager
     CancellationHistory cancellationHistory; // Create an instance of CancellationHistory
 
