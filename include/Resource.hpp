@@ -27,4 +27,7 @@ class Resource {
 
 std::vector<Resource> loadResources(const std::string& filename);
 
+void displayResources(const std::vector<Resource>& resources);
+void displayAvailableResources(const std::vector<Resource>& resources);
+
     #endif

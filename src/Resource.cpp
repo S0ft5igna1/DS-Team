@@ -42,16 +42,38 @@ std::vector<Resource> loadResources(const std::string& filename) {
         std::string id, name, type, availabilityStr;
         bool availability;
 
-        std::getline(ss, id, ',');
-        std::getline(ss, name, ',');
-        std::getline(ss, type, ',');
+        std::getline(ss, id, '|');
+        std::getline(ss, name, '|');
+        std::getline(ss, type, '|');
         std::getline(ss, availabilityStr);
 
-        availability = (availabilityStr == "1");
+        availability = (availabilityStr == "Available");
 
         resources.emplace_back(id, name, type, availability);
     }
 
     file.close();
     return resources;
+}
+
+void displayResources(const std::vector<Resource>& resources) {
+    for (const auto& resource : resources) {
+        std::cout << "ID: " << resource.getId() 
+        << ", Name: " << resource.getName() 
+        << ", Type: " << resource.getType() 
+        << ", Available: " << (resource.getAvailability() ? "Available" : "Not Available") 
+        << std::endl;
+    }
+}
+
+void displayAvailableResources(const std::vector<Resource>& resources) {
+    for (const auto& resource : resources) {
+        if (resource.getAvailability()) {
+            std::cout << "ID: " << resource.getId() 
+            << ", Name: " << resource.getName() 
+            << ", Type: " << resource.getType() 
+            << ", Available: " << (resource.getAvailability() ? "Available" : "Not Available") 
+            << std::endl;
+        }
+    }
 }
