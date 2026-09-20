@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Campus Resource Reservation System is a C++ console application designed to manage campus resource bookings, active reservations, and cancellation tracking. Implementing custom data structure including linked lists for active reservations and a stack for cancellation history. 
+The Campus Resource Reservation System is a C++ application designed to manage campus resource bookings, active reservations, and cancellation tracking. Implementing custom data structure including linked lists for active reservations and a stack for cancellation history. 
 
 
 ## Structure
