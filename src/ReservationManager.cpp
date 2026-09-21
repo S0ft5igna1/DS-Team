@@ -2,6 +2,7 @@
 #include "../include/ReservationManager.hpp" 
 #include <iostream>
 
+//Constructor
 ReservationManager::ReservationManager()
 {
     head = nullptr;
@@ -9,6 +10,7 @@ ReservationManager::ReservationManager()
     reservationCount = 0;
 }
 
+//Destructor
 ReservationManager::~ReservationManager()
 {
     Node* current = head;
@@ -23,31 +25,52 @@ ReservationManager::~ReservationManager()
     }
 }
 
-bool ReservationManager::reservationExists(
-    const std::string& reservationID
+//checks if the recource has already been reserved on the same date
+bool ReservationManager::reservationConflict(
+    const std::string& resourceID,
+    const std::string& reservationDate
 ) const
+{
+    Node* current = head; 
+
+    while (current != nullptr) // Traverse the linked list of reservations
+    {// Check if the current reservation has the same resource ID and reservation date
+        if (current->reservation.getResourceID() == resourceID && 
+            current->reservation.getReservationDate() == reservationDate)
+        {
+            return true; // Conflict found
+        }
+
+        current = current->next; 
+    }
+
+    return false; // No conflict then can create the reservation
+}
+
+//checks if the reservation ID exists 
+bool ReservationManager::reservationExists(const std::string& reservationID) const
 {
     Node* current = head;
 
-    while (current != nullptr)
+    while (current != nullptr) 
     {
-        if (current->reservation.getReservationID()
-            == reservationID)
+        if (current->reservation.getReservationID() == reservationID) // Check if the current reservation has the same reservation ID
         {
-            return true;
+            return true; // Reservation ID exists
         }
 
         current = current->next;
     }
 
-    return false;
+    return false; // Reservation ID does not exist
 }
 
+// Creates a new reservation
 bool ReservationManager::createReservation(
     const Reservation& reservation
 )
 {
-    // Basic input validation
+    // Check for empty reservation information
     if (reservation.getReservationID().empty() ||
         reservation.getStudentID().empty() ||
         reservation.getStudentName().empty() ||
@@ -59,12 +82,19 @@ bool ReservationManager::createReservation(
     }
 
     // Prevent duplicate reservation IDs
-    if (reservationExists(
-        reservation.getReservationID()))
+    if (reservationExists(reservation.getReservationID()))
     {
         std::cout << "Error: Reservation ID already exists.\n";
         return false;
     }
+    //check if the same resource has already been reserved on the same date
+    if (reservationConflict(reservation.getResourceID(), reservation.getReservationDate()))
+    {
+        std::cout << "Error: Resource already reserved on this date.\n";
+        return false;
+    }
+
+
 
     Node* newNode = new Node(reservation);
 
@@ -89,12 +119,14 @@ bool ReservationManager::createReservation(
     return true;
 }
 
+
+// Cancel a reservation
 bool ReservationManager::cancelReservation(
     const std::string& reservationID,
     CancellationHistory& history
 )
 {
-    if (head == nullptr)
+    if (head == nullptr) // Check if there are no active reservations
     {
         std::cout << "There are no active reservations.\n";
         return false;
@@ -104,14 +136,14 @@ bool ReservationManager::cancelReservation(
     Node* previous = nullptr;
 
     while (current != nullptr)
-    {
+    {// Check if the current reservation matches the provided reservation ID
         if (current->reservation.getReservationID()
             == reservationID)
         {
             // Save cancelled reservation in stack
             history.push(current->reservation);
 
-            // Removing the head
+            // Remove the head
             if (current == head)
             {
                 head = head->next;
@@ -125,11 +157,11 @@ bool ReservationManager::cancelReservation(
             // Removing another node
             else
             {
-                previous->next = current->next;
+                previous->next = current->next; // Update the previous node's next pointer to skip the current node
 
-                if (current == tail)
+                if (current == tail) // If the current node is the tail, update the tail pointer
                 {
-                    tail = previous;
+                    tail = previous; // Update the tail pointer to the previous node
                 }
             }
 
@@ -152,15 +184,33 @@ bool ReservationManager::cancelReservation(
     return false;
 }
 
-bool ReservationManager::undoCancellation(
-    CancellationHistory& history
-)
+// Undo the last cancellation
+bool ReservationManager::undoCancellation(CancellationHistory& history)
 {
     Reservation restoredReservation;
 
     if (!history.pop(restoredReservation))
     {
         std::cout << "There are no cancellations to undo.\n";
+        return false;
+    }
+    
+    // Check for reservation ID is being used 
+    if (reservationExists(restoredReservation.getReservationID()))
+    {
+        history.push(restoredReservation); // Push the reservation back onto the stack since it cannot be restored
+
+
+        std::cout << "Error: Cannot restore reservation. Reservation ID already exists.\n";
+        return false;
+    }
+
+    //check if the same resource has already been reserved on the same date
+    if (reservationConflict(restoredReservation.getResourceID(), restoredReservation.getReservationDate()))
+    {
+        history.push(restoredReservation); // Push the reservation back onto the stack since it cannot be restored
+
+        std::cout << "Error: Cannot restore reservation. Resource already reserved on this date.\n";
         return false;
     }
 
@@ -184,6 +234,8 @@ bool ReservationManager::undoCancellation(
     return true;
 }
 
+
+// Display all active reservations
 void ReservationManager::displayReservations() const
 {
     if (head == nullptr)
@@ -206,19 +258,19 @@ void ReservationManager::displayReservations() const
     }
 }
 
+// Search for a reservation by ID
 bool ReservationManager::searchReservation(
     const std::string& reservationID,
-    Reservation& reservation
-) const
+    Reservation& reservation) const
 {
-    Node* current = head;
+    Node* current = head; // Start from the head of the linked list
 
     while (current != nullptr)
     {
-        if (current->reservation.getReservationID()
+        if (current->reservation.getReservationID() // Check if the current reservation matches the provided reservation ID
             == reservationID)
         {
-            reservation = current->reservation;
+            reservation = current->reservation; 
 
             return true;
         }
@@ -229,7 +281,9 @@ bool ReservationManager::searchReservation(
     return false;
 }
 
+// Get the total number of active reservations
 int ReservationManager::getReservationCount() const
 {
     return reservationCount;
 }
+

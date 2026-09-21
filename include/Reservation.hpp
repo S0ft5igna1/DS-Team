@@ -1,5 +1,6 @@
 #ifndef RESERVATION_H
 #define RESERVATION_H
+
 #include <string>
 
 class Reservation // This class represents a reservation made by a student for a specific resource

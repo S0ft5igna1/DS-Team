@@ -20,10 +20,15 @@ private: // Node structure for the linked list of reservations
             next = nullptr;
         }
     };
-
+    //linked list for the entire system
     Node* head;
     Node* tail;
     int reservationCount;
+
+    //checks if the recource has already been reserved on the same date
+    bool reservationConflict(const std::string& resourceID, const std::string& reservationDate) const;
+
+
 
 public:
     ReservationManager();
