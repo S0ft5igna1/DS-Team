@@ -9,11 +9,12 @@ The Campus Resource Reservation System is a C++ application designed to manage c
 
 ## Structure
 - `src/`: Contains all implementation files (.cpp)
-- `cmain.cpp`: Main application entry point and interaction menu
+- `main.cpp`: Main application entry point and interaction menu
 - `ReservationManager.cpp`: Manages active reservations using a linked list
 - `CancellationHistory.cpp`: Manages cancelled reservations using a stack structure
 - `Reservation.cpp`: Handles reservation details and data fields
-- `Resource.cpp`: Handles loading and parsing resource data from files
+- `Resource.cpp`: Handles loading and parsing resource data from files'
+- `WaitingList.cpp`: Handles the Queue operation after going through reservation linked list
 - ` include/`: Contains all header files (.hpp)
 - `Data/`: Contains input data files (.txt files)
 
