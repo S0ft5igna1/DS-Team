@@ -74,9 +74,10 @@ int main()
             manager.sortResourcesByName();
             std::cout << :"Resources successfully sorted alphabetically by name.\n";
             break;
+
             case 4:
             manager.sortResourcesByPopularity();
-            std.cout << "Resources successfully sorted by popularity\n";
+            std::cout << "Resources successfully sorted by popularity\n";
             break;
 
             case 5:
