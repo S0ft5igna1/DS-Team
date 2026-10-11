@@ -12,6 +12,28 @@ void ReservationManager::addResource(const Resource& resource)
 {
     resources.push_back(resource);
 }
+
+// Helper method to validate YYYY-MM-DD date format and calendar limits
+bool isValidDate(const std::string& dateStr) 
+{
+    // Regex pattern for YYYY-MM-DD
+    std::regex datePattern("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$");
+    if (!std::regex_match(dateStr, datePattern))
+    return false;
+
+    int y, m, d;
+    char dash1, dash2;
+    std::stringstream ss(dateStr);
+    ss >> y >> dash1 >> m >> dash2 >> d;
+
+    // days-in-month validation
+    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    // Leap year check
+    if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) daysInMonth[2] = 29;
+
+    return d <= daysInMonth[m];
+}
+
 void ReservationManager::addReservation(const Reservation& reservation)
 {
     if (!isValidDate(reservation.getDate()))
@@ -282,28 +304,3 @@ void ReservationManager::generateWaitingListStatsReport() const
     }
 }
 
-// Helper method to validate YYYY-MM-DD date format and calendar limits
-bool isValidDate(const std::string& dateStr) 
-{
-    // Regex pattern for YYYY-MM-DD
-    std::regex datePattern("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$");
-    if (!std::regex_match(dateStr, datePattern))
-    {
-        return false;
-    }
-
-    int year, month, day;
-    char dash1, dash2;
-    std::stringstream ss(dateStr);
-    ss >> year >> dash1 >> month >> dash2 >> day;
-
-    // days-in-month validation
-    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    // Leap year check
-    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) 
-    {
-        daysInMonth[2] = 29;
-    }
-
-    return day <= daysInMonth[month];
-}

@@ -66,6 +66,19 @@ bool CancellationHistory::isEmpty() const
     return top == nullptr;
 }
 
+bool CancellationHistory::undoCancellation(WaitingList& waitingList, Reservation& resToRestore) 
+{
+    // Prevent undo if the student/reservation already exists in the waiting list
+    if (waitingList.isStudentInWaitingList(resToRestore.getStudentId())) 
+    {
+        std::cout << "Undo Error: Student " << resToRestore.getStudentId() 
+                  << " is currently in the waiting list. Undo blocked.\n";
+        return false;
+    }
+
+    // Proceed with restoring from stack
+    return true;
+}
 //displays the cancellation history
 void CancellationHistory::displayHistory() const
 {
