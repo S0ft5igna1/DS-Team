@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-
+#include <regex>
 
 ReservationManager::ReservationManager() {}
 
@@ -14,7 +14,27 @@ void ReservationManager::addResource(const Resource& resource)
 }
 void ReservationManager::addReservation(const Reservation& reservation)
 {
+    if (!isValidDate(reservation.getDate()))
+    {
+        std::cout << "Error: Invalid date format or date value ("
+                  << reservation.getDate() << "). Reservation rejected.\n";
+        return;
+    }
     reservations.push_back(reservation);
+}
+
+bool ReservationManager::undoCancellation(const std::string& reservationId) 
+{
+    // Check if the student/reservation is currently waiting on the WaitingList queue
+    if (waitingList.isStudentInWaitingList(reservationId)) 
+    {
+        std::cout << "Cannot undo cancellation: Reservation ID " << reservationId 
+                  << " is currently active in the waiting list!\n";
+        return false;
+    }
+
+    // Perform the restore...
+    return true;
 }
 
 // Quick Sort Implementation ( No std::sort used)
@@ -260,4 +280,30 @@ void ReservationManager::generateWaitingListStatsReport() const
         std::cout << std::left << std::setw(15) << resources[i].getId()
                   << std::setw(20) << count << "\n";
     }
+}
+
+// Helper method to validate YYYY-MM-DD date format and calendar limits
+bool isValidDate(const std::string& dateStr) 
+{
+    // Regex pattern for YYYY-MM-DD
+    std::regex datePattern("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$");
+    if (!std::regex_match(dateStr, datePattern))
+    {
+        return false;
+    }
+
+    int year, month, day;
+    char dash1, dash2;
+    std::stringstream ss(dateStr);
+    ss >> year >> dash1 >> month >> dash2 >> day;
+
+    // days-in-month validation
+    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    // Leap year check
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) 
+    {
+        daysInMonth[2] = 29;
+    }
+
+    return day <= daysInMonth[month];
 }
