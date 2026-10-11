@@ -2,7 +2,7 @@
 #include <string>
 #include "../include/ReservationManager.hpp"
 
-void displayMenu()
+void displayMenuMenu()
 {
     std::cout << "  Campus Resource Reservation System  \n";
     std::cout << "======================================\n";
@@ -15,7 +15,7 @@ void displayMenu()
     std::cout << "7. Report: Most Requested Resources\n";
     std::cout << "8. Report: Waiting-List Statistics\n";
     std::cout << "9. Exit\n";
-    std::cout << "Selection: ";
+    std::cout << "Enter Choice: ";
 }
 
 int main()
@@ -42,12 +42,12 @@ int main()
             case 1:
             {
                 std::string id;
-                std::cout << "Enter Resource ID to search: ";
+                std::cout << "Enter Resource ID: ";
                 std::cin >> id;
                 Resource* res = manager.searchResourceByIdBinary(id);
-                if (res)
+                if (res!= nullptr)
                 {
-                    std::cout << "Resource Found: ID=" << res->getId()
+                    std::cout << "Resource Found: ID = " << res->getId()
                               << ", Name=" << res->getName() << "\n";
                 }else
                 {
@@ -58,15 +58,21 @@ int main()
             case 2:
             {
                 std::string studentId;
-                std::cout << "Enter Student ID to search: ";
+                std::cout << "Enter Student ID: ";
                 std::cin >> studentId;
-                auto results = manager.searchReservationByStudentLinear(studentId);
-                std::cout << "Found " << results.size() << " reservations(s):\n";
-                for (const auto& r : results)
+                std::vector<Reservation> results = manager.searchReservationsByStudentLinear(studentId);
+                if (results.empty())
                 {
-                    std::cout << " - Res ID: " << r.getId()
-                              << ", Resource ID: "<< r.getResourceId()
-                              <<" , Date: " << r.getDate() << "\n";
+                    std::cout << "No reservations found for Student ID: " << studentId << "\n"; 
+                }else 
+                {
+                    std::cout << "Found " << results.size() << " reservation(s):\n";
+                    for (size_t i = 0; i < results.size(); i++)
+                    {
+                        std::cout << " -  ID: " << results[i].getId()
+                              << ", Resource ID: "<< results[i].getResourceId()
+                              <<" , Date: " << results[i].getDate() << "\n";
+                    }
                 }
                 break;
             }
@@ -106,6 +112,5 @@ int main()
 
         }
     }
-
     return 0;
 }
