@@ -1,116 +1,97 @@
 #include <iostream>
-#include <string>
 #include "../include/ReservationManager.hpp"
 
-void displayMenu()
-{
-    std::cout << "  Campus Resource Reservation System  \n";
-    std::cout << "======================================\n";
-    std::cout << "1. Search Resource By ID ( using Binary Search)\n";
-    std::cout << "2. Search Reservations by Student ID ( using Linear Search)\n";
-    std::cout << "3. Sort Resources by Name ( using Quick Sort)\n";
-    std::cout << "4. Sort Resources by Popularity (using Quick Sort)\n";
-    std::cout << "5. Report: Active Reservations\n";
-    std::cout << "6. Report: Resource Utilization\n";
-    std::cout << "7. Report: Most Requested Resources\n";
-    std::cout << "8. Report: Waiting-List Statistics\n";
+void printMenu() {
+    std::cout << "\n====================================\n";
+    std::cout << "  Campus Resource Reservation System\n";
+    std::cout << "====================================\n";
+    std::cout << "1. Search Resource by ID (Binary Search)\n";
+    std::cout << "2. Search Reservations by Student ID (Linear Search)\n";
+    std::cout << "3. Sort Resources by Name (Quick Sort)\n";
+    std::cout << "4. Sort Resources by Popularity (Quick Sort)\n";
+    std::cout << "5. Active Reservations Report\n";
+    std::cout << "6. Resource Utilization Report\n";
+    std::cout << "7. Most Requested Resources Report\n";
+    std::cout << "8. Waiting-List Statistics Report\n";
     std::cout << "9. Exit\n";
-    std::cout << "Enter Choice: ";
+    std::cout << "Enter choice: ";
 }
 
-int main()
-{
+int main() {
     ReservationManager manager;
 
-    // Load in data from text files 
+    // Load data files on startup
     manager.loadResourcesFromFile("Data/resources.txt");
     manager.loadReservationsFromFile("Data/reservations.txt");
 
-    int choice = 0;
-    while (choice != 9)
-    {
-        displayMenu();
-        if (!(std::cin >> choice))
-        {
+    int userChoice = 0;
+    while (userChoice != 9) {
+        printMenu();
+        if (!(std::cin >> userChoice)) {
             std::cin.clear();
             std::cin.ignore(10000, '\n');
             std::cout << "Invalid input. Please enter a number.\n";
             continue;
         }
-        switch(choice)
-        {
-            case 1:
-            {
-                std::string id;
+
+        switch (userChoice) {
+            case 1: {
+                std::string targetId;
                 std::cout << "Enter Resource ID: ";
-                std::cin >> id;
-                Resource* res = manager.searchResourceByIdBinary(id);
-                if (res!= nullptr)
-                {
-                    std::cout << "Resource Found: ID = " << res->getId()
-                              << ", Name=" << res->getName() << "\n";
-                }else
-                {
-                    std::cout << "Resource with ID " << id << " not found.\n";
+                std::cin >> targetId;
+                Resource* res = manager.searchResourceByIdBinary(targetId);
+                if (res != nullptr) {
+                    res->display();
+                } else {
+                    std::cout << "No resource found with ID: " << targetId << "\n";
                 }
                 break;
             }
-            case 2:
-            {
+            case 2: {
                 std::string studentId;
                 std::cout << "Enter Student ID: ";
                 std::cin >> studentId;
-                std::vector<Reservation> results = manager.searchReservationsByStudentLinear(studentId);
-                if (results.empty())
-                {
-                    std::cout << "No reservations found for Student ID: " << studentId << "\n"; 
-                }else 
-                {
+                auto results = manager.searchReservationsByStudentLinear(studentId);
+                if (results.empty()) {
+                    std::cout << "No reservations found for Student ID: " << studentId << "\n";
+                } else {
                     std::cout << "Found " << results.size() << " reservation(s):\n";
-                    for (size_t i = 0; i < results.size(); i++)
-                    {
-                        std::cout << " -  ID: " << results[i].getId()
-                              << ", Resource ID: "<< results[i].getResourceId()
-                              <<" , Date: " << results[i].getDate() << "\n";
+                    for (const auto& r : results) {
+                        std::cout << " - ID: " << r.getId() 
+                                  << " | Resource: " << r.getResourceId() 
+                                  << " | Date: " << r.getDate() << "\n";
                     }
                 }
                 break;
             }
             case 3:
-            manager.sortResourcesByName();
-            std::cout << :"Resources successfully sorted alphabetically by name.\n";
-            break;
-
+                manager.sortResourcesByName();
+                std::cout << "Sorted resources by name using Quick Sort.\n";
+                break;
             case 4:
-            manager.sortResourcesByPopularity();
-            std::cout << "Resources successfully sorted by popularity\n";
-            break;
-
+                manager.sortResourcesByPopularity();
+                std::cout << "Sorted resources by popularity using Quick Sort.\n";
+                break;
             case 5:
-            manager.generateActiveReservationsReport();
-            break;
-
+                manager.generateActiveReservationsReport();
+                break;
             case 6:
-            manager.generateResourceUtilizationReport();
-            break;
-
+                manager.generateResourceUtilizationReport();
+                break;
             case 7:
-            manager.generateMostRequestedResourcesReport();
-            break;
-
+                manager.generateMostRequestedResourcesReport();
+                break;
             case 8:
-            manager.generateWaitingListStatsReport();
-            break;
-
+                manager.generateWaitingListStatsReport();
+                break;
             case 9:
-            std::cout << "Exiting System. Goodbye!\n";
-            break;
-
+                std::cout << "Exiting program.\n";
+                break;
             default:
-            std::cout << "Invalid choice. Please select an option between 1 and 9.\n";
-            break;
-
+                std::cout << "Invalid choice (1-9).\n";
+                break;
         }
     }
+
     return 0;
 }
