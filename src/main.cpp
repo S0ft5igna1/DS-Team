@@ -2,7 +2,7 @@
 #include <string>
 #include "../include/ReservationManager.hpp"
 
-void displayMenuMenu()
+void displayMenu()
 {
     std::cout << "  Campus Resource Reservation System  \n";
     std::cout << "======================================\n";
@@ -23,8 +23,8 @@ int main()
     ReservationManager manager;
 
     // Load in data from text files 
-    manager.loadResourcesFromFile("Data/resource.txt");
-    manager.loadReservationsFromFile("Data/reservations/txt");
+    manager.loadResourcesFromFile("Data/resources.txt");
+    manager.loadReservationsFromFile("Data/reservations.txt");
 
     int choice = 0;
     while (choice != 9)
