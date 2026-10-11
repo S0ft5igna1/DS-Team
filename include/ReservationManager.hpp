@@ -1,61 +1,59 @@
 #ifndef RESERVATION_MANAGER_H
 #define RESERVATION_MANAGER_H
- 
+
+
+#include "Resource.hpp"
+#include "WaitingList.hpp"
 #include "Reservation.hpp"
 #include "CancellationHistory.hpp"
 #include <string>
+#include <vector>
 
-// This class manages reservations, allowing for creation, cancellation, and searching of reservations
 class ReservationManager
 {
-private: // Node structure for the linked list of reservations
-    struct Node
-    {
-        Reservation reservation; 
-        Node* next;
+    private:
+    std::vector<Resource> resource;
+    std::vector<Reservation> reservations;
+    WaitingList waitinglist;
+    CancellationHistory cancellationHistory;
 
-        Node(const Reservation& reservation)
-        {
-            this->reservation = reservation;
-            next = nullptr;
-        }
-    };
-    //linked list for the entire system
-    Node* head;
-    Node* tail;
-    int reservationCount;
+    // Implementation of Quick Sort Helper Method 
 
-    //checks if the recource has already been reserved on the same date
-    bool reservationConflict(const std::string& resourceID, const std::string& reservationDate) const;
+    void quickSortResourceByName(std::vector<Resource>& resList, int low, int high);
+    int partitionByName(std::vector<Resource>& resList, int low, int high);
 
+    void quickSortResourcesById(std::vector<Resource>& resList, int low, int high);
+    int partitionById(std::vector<Resource>& resList, int low, int high);
 
+    void quickSortResourcesByPopularity(std::vector<Resource>& resList, int low, int high);
+    int partitionByPopularity(std::vector<Resource>& resList, int low, int high);
 
-public:
-    ReservationManager();
+    public:
+        ReservationManager();
 
-    ~ReservationManager();
+        // Core functions
+        void addResource(const Resource& resource);
+        void addReservation(const Reservation& reservation);
 
-    bool createReservation(const Reservation& reservation);
+        // File loading
+        void loadResourcesFromFile(const std::string& filename);
+        void loadReservationsFromFile(const std::string& filename);
 
-    bool cancelReservation(
-        const std::string& reservationID,
-        CancellationHistory& history
-    );
+        // Searching Operations
+        void sortResourcesByName();
+        void sortResourcesById();
+        void sortResourcesByPopularity();
 
-    bool undoCancellation(CancellationHistory& history);
+        // Reporting Abilities
+        void generateActiveReservationsReport() const;
+        void generateResourceUtilizationReport() const;
+        void generateMostRequestedResourcesReport();
+        void generateWaitingListStatsReport() const;
 
-    void displayReservations() const;
-
-    bool searchReservation(
-        const std::string& reservationID,
-        Reservation& reservation
-    ) const;
-
-    bool reservationExists(
-        const std::string& reservationID
-    ) const;
-
-    int getReservationCount() const;
+        // Accessors
+        const std::vector<Resource>& getResources() const {return resources;}
+        const std::vector<Reservation>& getReservations() const { return reservations;}
 };
 
-#endif
+#endif //  insert RESERVATIONMANAGER_HPP
+

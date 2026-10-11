@@ -1,289 +1,258 @@
 
 #include "../include/ReservationManager.hpp" 
 #include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
-//Constructor
-ReservationManager::ReservationManager()
+
+ReservationManager::ReservationManager() {}
+
+void ReservationManager::addResource(const Resource& resource)
 {
-    head = nullptr;
-    tail = nullptr;
-    reservationCount = 0;
+    resources.push_back(resource);
+}
+void ReservationManager::addReservation(const Reservation& reservation)
+{
+    reservations.push_back(reservation);
 }
 
-//Destructor
-ReservationManager::~ReservationManager()
-{
-    Node* current = head;
+// Quick Sort Implementation ( No std::sort used)
 
-    while (current != nullptr)
+// Sort by Resource Name
+int ReservationManager::partitionByName(std::vector<Resource>& resList, int low, int high)
+{
+    std::string pivot = resList[high].getName();
+    int i = low - 1;
+    for (int j = low; j < high; i++)
     {
-        Node* temp = current;
-
-        current = current->next;
-
-        delete temp;
-    }
-}
-
-//checks if the recource has already been reserved on the same date
-bool ReservationManager::reservationConflict(
-    const std::string& resourceID,
-    const std::string& reservationDate
-) const
-{
-    Node* current = head; 
-
-    while (current != nullptr) // Traverse the linked list of reservations
-    {// Check if the current reservation has the same resource ID and reservation date
-        if (current->reservation.getResourceID() == resourceID && 
-            current->reservation.getReservationDate() == reservationDate)
+        if (resList[j].getName() <= pivot)
         {
-            return true; // Conflict found
+            i++;
+            std::swap(resList[i], resList[j]);
         }
-
-        current = current->next; 
     }
-
-    return false; // No conflict then can create the reservation
+    std::swap(resList[i+1], resList[high]);
+    return i + 1;
 }
 
-//checks if the reservation ID exists 
-bool ReservationManager::reservationExists(const std::string& reservationID) const
+void ReservationManager::quickSortResourceByName(std::vector<Resource>& resList, int low, int high)
 {
-    Node* current = head;
-
-    while (current != nullptr) 
+    if (low < high)
     {
-        if (current->reservation.getReservationID() == reservationID) // Check if the current reservation has the same reservation ID
+        int pi = partitionByName(resList, low, high);
+        quickSortResourceByName(resList, low, pi -1);
+        quickSortResourceByName(resList, pi + 1, high);
+    }
+}
+
+void ReservationManager::sortResourcesByName()
+{
+    if (!resources.empty())
+    {
+        quickSortResourceByName(resources, 0, resources.size() - 1);
+    }
+}
+
+// Sort by Resource ID (Needed before Binary Search (Requires to be sorted))
+int ReservationManager::partitionById(std::vector<Resource>& resList, int low, int high)
+{
+    std::string pivot = resList[high].getId();
+    int i = low -1
+    for (int j = low; j < high; ++j)
+    {
+        if (resList[j].geId() <= pivot)
         {
-            return true; // Reservation ID exists
+            i++;
+            std::swap(resList[i], resList[j]);
         }
-
-        current = current->next;
     }
-
-    return false; // Reservation ID does not exist
+    std::swap(resList[i + 1], resList[high]);
+    return i + 1;
 }
 
-// Creates a new reservation
-bool ReservationManager::createReservation(
-    const Reservation& reservation
-)
+void ReservationManager::quickSortResourcesById(std::vector<Resource>& resList, int low, int high )
 {
-    // Check for empty reservation information
-    if (reservation.getReservationID().empty() ||
-        reservation.getStudentID().empty() ||
-        reservation.getStudentName().empty() ||
-        reservation.getResourceID().empty() ||
-        reservation.getReservationDate().empty())
+    if (low < high)
     {
-        std::cout << "Error: Reservation information cannot be empty.\n";
-        return false;
+        int pi = partitionById(resList, low, high);
+        quickSortResourcesById(resList, low, pi - 1);
+        quickSortResourcesById(resList, pi + 1, high);
     }
-
-    // Prevent duplicate reservation IDs
-    if (reservationExists(reservation.getReservationID()))
-    {
-        std::cout << "Error: Reservation ID already exists.\n";
-        return false;
-    }
-    //check if the same resource has already been reserved on the same date
-    if (reservationConflict(reservation.getResourceID(), reservation.getReservationDate()))
-    {
-        std::cout << "Error: Resource already reserved on this date.\n";
-        return false;
-    }
-
-
-
-    Node* newNode = new Node(reservation);
-
-    // First reservation
-    if (head == nullptr)
-    {
-        head = newNode;
-        tail = newNode;
-    }
-
-    // Add to end of linked list
-    else
-    {
-        tail->next = newNode;
-        tail = newNode;
-    }
-
-    reservationCount++;
-
-    std::cout << "Reservation created successfully.\n";
-
-    return true;
 }
 
-
-// Cancel a reservation
-bool ReservationManager::cancelReservation(
-    const std::string& reservationID,
-    CancellationHistory& history
-)
+void ReservationManager::sortResourcesById()
 {
-    if (head == nullptr) // Check if there are no active reservations
+    if (!resources.empty())
     {
-        std::cout << "There are no active reservations.\n";
-        return false;
+        quickSortResourcesById(resources, 0, resources.size() - 1);
     }
+}
 
-    Node* current = head;
-    Node* previous = nullptr;
-
-    while (current != nullptr)
-    {// Check if the current reservation matches the provided reservation ID
-        if (current->reservation.getReservationID()
-            == reservationID)
+// Sort by Resource Popularity ( in descending order)
+int ReservationManager::partitionByPopularity(std::vector<Resoruce>& resList, int low, int high)
+{
+    int pivot = resList[high].getReservationCount();
+    int i = low - 1;
+    for(int j = low; j < high; ++j)
+    {
+        if(resList[j].getReservationCount() >= pivot)
         {
-            // Save cancelled reservation in stack
-            history.push(current->reservation);
-
-            // Remove the head
-            if (current == head)
-            {
-                head = head->next;
-
-                if (head == nullptr)
-                {
-                    tail = nullptr;
-                }
-            }
-
-            // Removing another node
-            else
-            {
-                previous->next = current->next; // Update the previous node's next pointer to skip the current node
-
-                if (current == tail) // If the current node is the tail, update the tail pointer
-                {
-                    tail = previous; // Update the tail pointer to the previous node
-                }
-            }
-
-            delete current;
-
-            reservationCount--;
-
-            std::cout << "Reservation cancelled successfully.\n";
-            std::cout << "Added to cancellation history.\n";
-
-            return true;
+            i++;
+            std::swap(resList[i], resList[j]);
         }
-
-        previous = current;
-        current = current->next;
     }
-
-    std::cout << "Reservation not found.\n";
-
-    return false;
+    std::swap(resList[i + 1], resList[high];
+        return i + 1;
 }
 
-// Undo the last cancellation
-bool ReservationManager::undoCancellation(CancellationHistory& history)
+void ReservationManager::quickSortResourcesByPopularity(std::vector<Resource>& resList, int low, int high)
 {
-    Reservation restoredReservation;
-
-    if (!history.pop(restoredReservation))
+    if (low < high)
     {
-        std::cout << "There are no cancellations to undo.\n";
-        return false;
+        int pi = partitionByPopularity(resList, low, high);
+        quickSortResourcesByPopularity(resList, low, pi - 1);
+        quickSortResourcesByPopularity(resList, pi + 1, high);
     }
+}
+
+void ReservationManager::sortResourcesByPopularity()
+{
+    if(!resources.empty())
+    {
+        quickSortResourcesByPopularity(resources, 0, resources.size() - 1);
+    }
+}
+
+/* Searching Implementations*/ 
+
+//Binary Search for Resource ID ( List must be pre-sorted)
+
+Resource* ReservationManager::searchResourceByIdBinary(const std::string& id)
+{
+    sortResourcesById();
+
+    int low = 0;
+    int high = static_cast<int>(resources.size()) -1;
     
-    // Check for reservation ID is being used 
-    if (reservationExists(restoredReservation.getReservationID()))
+    while(low <= high)
     {
-        history.push(restoredReservation); // Push the reservation back onto the stack since it cannot be restored
-
-
-        std::cout << "Error: Cannot restore reservation. Reservation ID already exists.\n";
-        return false;
-    }
-
-    //check if the same resource has already been reserved on the same date
-    if (reservationConflict(restoredReservation.getResourceID(), restoredReservation.getReservationDate()))
-    {
-        history.push(restoredReservation); // Push the reservation back onto the stack since it cannot be restored
-
-        std::cout << "Error: Cannot restore reservation. Resource already reserved on this date.\n";
-        return false;
-    }
-
-    Node* newNode = new Node(restoredReservation);
-
-    if (head == nullptr)
-    {
-        head = newNode;
-        tail = newNode;
-    }
-    else
-    {
-        tail->next = newNode;
-        tail = newNode;
-    }
-
-    reservationCount++;
-
-    std::cout << "Reservation restored successfully.\n";
-
-    return true;
-}
-
-
-// Display all active reservations
-void ReservationManager::displayReservations() const
-{
-    if (head == nullptr)
-    {
-        std::cout << "\nThere are no active reservations.\n";
-        return;
-    }
-
-    std::cout << "\n===== Active Reservations =====\n";
-
-    Node* current = head;
-
-    while (current != nullptr)
-    {
-        current->reservation.display();
-
-        std::cout << "-----------------------------\n";
-
-        current = current->next;
-    }
-}
-
-// Search for a reservation by ID
-bool ReservationManager::searchReservation(
-    const std::string& reservationID,
-    Reservation& reservation) const
-{
-    Node* current = head; // Start from the head of the linked list
-
-    while (current != nullptr)
-    {
-        if (current->reservation.getReservationID() // Check if the current reservation matches the provided reservation ID
-            == reservationID)
+        int mid = low + (high - low) / 2;
+        if (resources[mid].getId() == id)
         {
-            reservation = current->reservation; 
-
-            return true;
+            return &resources[mid];
         }
-
-        current = current->next;
+        if (resources[mid].getId() < id)
+        {
+            low = mid + 1;
+        }else
+        {
+            high = mid - 1;
+        }
     }
-
-    return false;
+    return nullptr;
 }
 
-// Get the total number of active reservations
-int ReservationManager::getReservationCount() const
+//Linear Search for Reservations by Student ID/Name
+
+std::vector<Reservation> ReservationManager::searchReservationByStudentLinear(const std::string& studentId)
 {
-    return reservationCount;
+    std::vector<Reservation> matches;
+    for (size_t i = 0; i < reservations.size(); ++i)
+    {
+        if(reservations[i].getStudentId() == studentId)
+        {
+            matches.push_back(reservations[i]);
+        }
+    }
+    return matches;
 }
 
+// System Reporting System
+
+void ReservationManager::generateActiveReservationsReport() const
+{
+    std::cout << "\n ============================= \n";
+    std::cout << "      Active Reservations Report \n";
+    std::cout << "================================ \n";
+    std::cout << std:left << std::setw(12) << "Res ID"
+              << std::setw(15) << "Resource ID"
+              << std::setw(15) << "Student ID"
+              << std::setw(15) << "Date" << "\n";
+    std::cout << " --------------------------------\n";
+
+    int count = 0;
+    for (size_t i = 0; i < reservations.size(); ++i)
+    {
+        if (reservations[i].getStatus() == "Active" || reservations[i].getStatus() == "CONFIRMED")
+        {
+            std::cout << std::left << std::setw(12) << reservations[i].getId()
+                      << std::setw(15) << reservations[i].getResourceId()
+                      << std::setw(15) << reservations[i].getStudentId()
+                      << std::setw(15) << reservations[i].getDate() << "\n";
+            count++;
+        }
+    }
+    std::cout << "---------------------------------\n";
+    std::cout << "Total Active Reservations: " << count << "\n";
+}
+
+void ReservationManager::generateResourceUtilizationReport() const
+{
+    std::cout << "\n========================================\n";
+    std::cout << "       Resource Utilization Report        \n";
+    std::cout << "==========================================\n";
+    std::cout << std::left << std::setw(12) << "Resource ID"
+              << std::setw(20) << "Name"
+              << std::setW(15) << "Reservatiosn" << "\n";
+    std::cout << "------------------------------------------\n";
+
+    for (size_t i = 0; i < resources.size(); ++i)
+    {
+        std::cout << std::left << std::setw(12) << resources[i].getId()
+                  << std:: setw(20) << resources[i].getName()
+                  << std:: setw(15) << resources[i].getReservationCount() << "\n";
+    }
+    std::cout << "------------------------------------------\n";
+}
+
+void ReservationManager::generateMostRequestedResourcesReport()
+{
+    sortResourcesByPopularity(); // sorts resources using Quick Sort
+
+    std::cout << "\n=========================================\n";
+    std::cout << "       Most Requested Resources Report     \n";
+    std::cout << "===========================================\n";
+    std::cout << std::left << std::setw(8) << "Rank"
+              << std::setw (12) << "Resource ID"
+              << std::setw (20) << "Name"
+              << std::setw (12) << "Total Uses" << "\n";
+    std::cout << "-------------------------------------------\n";
+
+    for (size_t i = 0; i < resources.size(); ++i)
+    {
+        std::cout << std::left << std::setw(8) << (i + 1)
+                  << std::setw(12) << resources[i].getId()
+                  << std::setw(20) << resources[i].getName()
+                  << std::setw(12) << resources[i].getReservationCount() << "\n";
+    }
+    std::cout << "-------------------------------------------\n";
+}
+
+void ReservationManager::generateWaitingListStatsReport() const
+{
+    std::cout << "\n========================================\n";
+    std::cout << "        Waiting List Statistics           \n";
+    std::cout << "==========================================\n";
+    std::cout << std::left << std::setw(15) << "Resource ID"
+              << std::setw(20) << "Students Waiting" << "\n":
+    std::cout << "------------------------------------------\n";
+
+    for (size_t i = 0; i < resource.size(); ++i)
+    {
+        int waitingCount = WaitingList.getWaitingCountForResource(resources[i].getId());
+        std::cout << std::left << std::setw(15) << resources[i].getId()
+                  << std::setw(20) << waitingCount << "\n";
+    }
+    std::cout << "-----------------------------------------\n";
+}
