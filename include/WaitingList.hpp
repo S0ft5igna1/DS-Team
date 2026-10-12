@@ -41,6 +41,8 @@ public:
     void displayWaitingList() const;
 
     bool isEmpty() const;
+    int countForResource(const std::string& resourceID) const;
+    int getWaitingCount() const;
 
     // Checks if a reservation ID exists in the waiting list
     bool reservationExists(const std::string& reservationID) const;

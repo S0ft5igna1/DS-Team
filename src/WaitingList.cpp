@@ -158,3 +158,27 @@ bool WaitingList::reservationExists(const std::string &reservationID) const
     }
     return false;
 }
+
+int WaitingList::countForResource(const std::string& resourceID) const
+{
+    int count = 0;
+    WaitNode* current = front;
+    while (current != nullptr)
+    {
+        if (current->reservation.getResourceID() == resourceID) ++count;
+        current = current->next;
+    }
+    return count;
+}
+
+int WaitingList::getWaitingCount() const
+{
+    int count = 0;
+    WaitNode* current = front;
+    while (current != nullptr)
+    {
+        ++count;
+        current = current->next;
+    }
+    return count;
+}

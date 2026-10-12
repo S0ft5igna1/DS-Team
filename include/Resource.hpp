@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-class Resource {
+class Resource 
+{
     private:
         std::string id;
         std::string name;

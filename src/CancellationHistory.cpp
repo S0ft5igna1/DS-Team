@@ -28,7 +28,7 @@ void CancellationHistory::push(const Reservation& reservation)
     top = newNode; //move the top pointer to the new node, making it the new top of the stack
 }
 
-// Remove the top reservation from the stack and return it
+
 bool CancellationHistory::pop(Reservation& reservation)
 {
     if (isEmpty()) //check if the stack is empty
@@ -66,19 +66,6 @@ bool CancellationHistory::isEmpty() const
     return top == nullptr;
 }
 
-bool CancellationHistory::undoCancellation(WaitingList& waitingList, Reservation& resToRestore) 
-{
-    // Prevent undo if the student/reservation already exists in the waiting list
-    if (waitingList.isStudentInWaitingList(resToRestore.getStudentId())) 
-    {
-        std::cout << "Undo Error: Student " << resToRestore.getStudentId() 
-                  << " is currently in the waiting list. Undo blocked.\n";
-        return false;
-    }
-
-    // Proceed with restoring from stack
-    return true;
-}
 //displays the cancellation history
 void CancellationHistory::displayHistory() const
 {
@@ -90,7 +77,7 @@ void CancellationHistory::displayHistory() const
 
     std::cout << "\n===== Cancellation History =====\n"; 
 
-    StackNode* current = top; // Start from the top of the stack
+    StackNode* current = top; 
 
     while (current != nullptr) //while its not null, display the reservation details
     {
